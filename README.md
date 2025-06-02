@@ -1,2 +1,2 @@
 # StepsWithChefs
- Project about cooking recipes.
+Project about cooking recipes.
