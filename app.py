@@ -85,36 +85,64 @@ def feed():
         SELECT 
             Recipe.recipe_id,
             Recipe.title,
+            Recipe.media
+        FROM Recipe
+        ORDER BY Recipe.recipe_id DESC
+    """)
+    
+    recipes = c.fetchall()
+    conn.close()
+
+    output = "<h1>Feed</h1><ul>"
+    for recipe in recipes:
+        output += f"""
+        <li>
+            <a href="/recipe/{recipe[0]}"><h2>{recipe[1]}</h2></a>
+            <img src='/static/img/{recipe[2]}' width='200'><br><br>
+        </li>
+        """
+    output += "</ul>"
+    return output
+
+
+@app.route('/recipe/<int:recipe_id>')
+def recipe_detail(recipe_id):
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+    c.execute("""
+        SELECT 
+            Recipe.title,
             Recipe.description,
             Recipe.ingredients,
             Recipe.media,
             User.username,
             User.profile_image,
-            (SELECT COUNT(*) FROM Like WHERE Like.recipe_id = Recipe.recipe_id) AS like_count,
-            (SELECT COUNT(*) FROM Repost WHERE Repost.recipe_id = Recipe.recipe_id) AS repost_count
+            (SELECT COUNT(*) FROM Like WHERE recipe_id = ?) AS like_count,
+            (SELECT COUNT(*) FROM Repost WHERE recipe_id = ?) AS repost_count
         FROM Recipe
         JOIN User ON Recipe.user_id = User.user_id
-        ORDER BY Recipe.recipe_id DESC
-    """)
-    
-    posts = c.fetchall()
+        WHERE Recipe.recipe_id = ?
+    """, (recipe_id, recipe_id, recipe_id))
+
+    recipe = c.fetchone()
     conn.close()
 
-    output = "<h1>Feed</h1><ul>"
-    for post in posts:
-        output += f"""
-        <li>
-            <h2>{post[1]}</h2>
-            <p><strong>By:</strong> {post[5]}</p>
-            <img src='/static/{post[6]}' width='50'><br>
-            <p>{post[2]}</p>
-            <p><em>Ingredients:</em> {post[3]}</p>
-            <img src='/static/img/{post[4]}' width='150'><br>
-            ❤️ Likes: {post[7]} | 🔁 Reposts: {post[8]}
-        </li><br>
+    if recipe:
+        output = f"""
+        <h1>{recipe[0]}</h1>
+        <p><strong>By:</strong> {recipe[4]}</p>
+        <img src='/static/{recipe[5]}' width='50'><br>
+        <p>{recipe[1]}</p>
+        <p><em>Ingredients:</em> {recipe[2]}</p>
+        <img src='/static/img/{recipe[3]}' width='200'><br><br>
+        <p>❤️ Likes: {recipe[6]} | 🔁 Reposts: {recipe[7]}</p>
+        <a href="/feed">← Tilbage til feed</a>
         """
-    output += "</ul>"
-    return output
+        return output
+    else:
+        return "<h1>Opskrift ikke fundet.</h1><a href='/feed'>← Tilbage til feed</a>"
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
