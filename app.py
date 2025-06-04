@@ -7,6 +7,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return render_template('index.html')
+
 # Here we create the users database which contains the database from SQL and have usernames, user_id and pictures
 @app.route('/users')
 def list_users():
@@ -22,6 +23,7 @@ def list_users():
         output += f"<li>ID: {user[0]} | {user[1]} - <img src='/static/{user[2]}' alt='image' width='50'></li>"
     output += "</ul>"
     return output
+
 # Here we create the second route in our database which is recipes. This database also interracts with SQL and creates the 3 recipes.
 @app.route('/recipes')
 def list_recipes():
@@ -37,6 +39,7 @@ def list_recipes():
         output += f"<li><strong>{r[0]}</strong>: {r[1]}</li>"
     output += "</ul>"
     return output
+
 # Here we create our main function which is "feed". This function contains our posts with the title and picture of the food made from the recipe.
 @app.route('/feed')
 def feed():
@@ -69,10 +72,13 @@ def feed():
     output += "</ul>"
     return output
 
+# Here we create the route to show a detailed view of a specific recipe based on its ID
 @app.route('/recipe/<int:recipe_id>')
 def recipe_detail(recipe_id):
-    conn = sqlite3.connect('stepswithchefs.db')
+    conn = sqlite3.connect('stepswithchefs.db') # Connects with database
     c = conn.cursor()
+
+    # Here we select the title, description, ingredients, media, username, profile picture, and number of likes and reposts from the database
     c.execute("""
         SELECT 
             Recipe.title,
@@ -91,6 +97,7 @@ def recipe_detail(recipe_id):
     recipe = c.fetchone()
     conn.close()
 
+    # Here we check if the recipe exists and then return the HTML that shows recipe details, user info, image and a comment form
     if recipe:
         output = f"""
         <h1>{recipe[0]}</h1>
@@ -119,12 +126,16 @@ def recipe_detail(recipe_id):
         """
         return output
     else:
+        # Here we return a message if no recipe was found with the given ID
         return "<h1>Recipe not found.</h1><a href='/feed'>← Tilbage til feed</a>"
 
+# Here we create the route that shows all comments for a specific recipe
 @app.route('/recipe/<int:recipe_id>/comments')
 def recipe_comments(recipe_id):
-    conn = sqlite3.connect('stepswithchefs.db')
+    conn = sqlite3.connect('stepswithchefs.db') # Connects with database
     c = conn.cursor()
+
+    # Here we select the username, comment text, time and rating for the recipe
     c.execute("""
         SELECT 
             User.username,
@@ -139,12 +150,14 @@ def recipe_comments(recipe_id):
     comments = c.fetchall()
     conn.close()
 
+    # Here we return the HTML page with all the comments for the recipe
     output = f"""
     <h1>Comments for this recipe</h1>
     <p><a href="/recipe/{recipe_id}">← Back to recipe</a></p>
     <ul>
     """
     
+    # This loops through all comments and adds them to the list
     for comment in comments:
         output += f"""
         <li>
@@ -156,19 +169,20 @@ def recipe_comments(recipe_id):
     
     return output
 
+# Here we create the route that handles the POST request for a new comment
 @app.route('/comment/<int:recipe_id>', methods=['POST'])
 def add_comment(recipe_id):
     username = request.form['username']
     text = request.form['text']
     rating = int(request.form['rating'])
 
-    # Brug regex til at censurere upassende ord
+    # Here we use regex to censor inappropriate words from the comment text
     censored = re.sub(r'(fuck|shit|idiot|ass|garbage|trash|dogshit)', '***', text, flags=re.IGNORECASE)
 
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
 
-    # Find user_id fra username
+    # Here we get the user_id based on the username
     c.execute("SELECT user_id FROM User WHERE username = ?", (username,))
     result = c.fetchone()
     if result:
@@ -177,7 +191,7 @@ def add_comment(recipe_id):
         conn.close()
         return "User does not exist!"
 
-    # Tilføj kommentar
+    # Here we insert the new comment into the Comment table
     c.execute("""
         INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
         VALUES (?, ?, ?, datetime('now'), ?)
@@ -185,7 +199,10 @@ def add_comment(recipe_id):
 
     conn.commit()
     conn.close()
+
+    # Here we redirect the user back to the recipe page after submitting the comment
     return redirect(f'/recipe/{recipe_id}')
 
+# Here we start the Flask app in debug mode
 if __name__ == '__main__':
     app.run(debug=True)
