@@ -88,11 +88,25 @@ def recipe_detail(recipe_id):
         <img src='/static/img/{recipe[3]}' width='200'><br><br>
         <p>❤️ Likes: {recipe[6]} | 🔁 Reposts: {recipe[7]}</p>
         <p><a href="/recipe/{recipe_id}/comments">💬 See comments</a></p>
-        <a href="/feed">← Back to feed</a>
+        <p><a href="/feed">← Back to feed</a></p>
+
+        <form action="/comment/{recipe_id}" method="post">
+        <p><strong>Add a comment:</strong></p>
+        <label for="username">Username:</label><br>
+        <input type="text" name="username" required><br>
+
+        <label for="text">Comment:</label><br>
+        <textarea name="text" rows="3" cols="40" required></textarea><br>
+
+        <label for="rating">Rating (1-5):</label><br>
+        <input type="number" name="rating" min="1" max="5" required><br><br>
+
+        <input type="submit" value="Send kommentar">
+        </form>
         """
         return output
     else:
-        return "<h1>Opskrift ikke fundet.</h1><a href='/feed'>← Tilbage til feed</a>"
+        return "<h1>Recipe not found.</h1><a href='/feed'>← Tilbage til feed</a>"
 
 @app.route('/recipe/<int:recipe_id>/comments')
 def recipe_comments(recipe_id):
@@ -129,9 +143,6 @@ def recipe_comments(recipe_id):
     
     return output
 
-import re
-from flask import request, redirect
-
 @app.route('/comment/<int:recipe_id>', methods=['POST'])
 def add_comment(recipe_id):
     username = request.form['username']
@@ -139,7 +150,7 @@ def add_comment(recipe_id):
     rating = int(request.form['rating'])
 
     # Brug regex til at censurere upassende ord
-    censored = re.sub(r'\b(fuck|shit|lort)\b', '***', text, flags=re.IGNORECASE)
+    censored = re.sub(r'(fuck|shit|lort|ass|garbage|trash)', '***', text, flags=re.IGNORECASE)
 
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
@@ -151,7 +162,7 @@ def add_comment(recipe_id):
         user_id = result[0]
     else:
         conn.close()
-        return "Bruger findes ikke!"
+        return "User does not exist!"
 
     # Tilføj kommentar
     c.execute("""
