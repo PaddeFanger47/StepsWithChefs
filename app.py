@@ -6,17 +6,18 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+     # Renders the main homepage using index.html template
     return render_template('index.html')
 
 @app.route('/users')
 def list_users():
-    conn = sqlite3.connect('stepswithchefs.db')
+    conn = sqlite3.connect('stepswithchefs.db')  # Connect to the local SQLite database
     c = conn.cursor()
     c.execute("SELECT user_id, username, profile_image FROM User")
     users = c.fetchall()
     conn.close()
 
-    # Returner som HTML (simpel liste)
+    # Generate simple HTML output with user info
     output = "<h1>Users</h1><ul>"
     for user in users:
         output += f"<li>ID: {user[0]} | {user[1]} - <img src='/static/{user[2]}' alt='image' width='50'></li>"
@@ -25,13 +26,13 @@ def list_users():
 
 @app.route('/recipes')
 def list_recipes():
-    conn = sqlite3.connect('stepswithchefs.db')
+    conn = sqlite3.connect('stepswithchefs.db')  # Retrieves all recipes from the database
     c = conn.cursor()
     c.execute("SELECT recipe_id, title, description, ingredients, media FROM Recipe")
     recipes = c.fetchall()
     conn.close()
 
-    # Returnerer som HTML 
+    # Displays recipes as a simple HTML list
     output = "<h1>Recipes</h1><ul>"
     for r in recipes:
         output += f"<li><strong>{r[0]}</strong>: {r[1]}</li>"
@@ -40,9 +41,10 @@ def list_recipes():
 
 @app.route('/feed')
 def feed():
-    conn = sqlite3.connect('stepswithchefs.db')
+    conn = sqlite3.connect('stepswithchefs.db')  # Again retrieves all recipes from the database
     c = conn.cursor()
     
+    # Retrieves all recipes, ordered by newest first
     c.execute("""
         SELECT 
             Recipe.recipe_id,
@@ -55,9 +57,10 @@ def feed():
     recipes = c.fetchall()
     conn.close()
 
-    # Overskrift og link
+    # Headline and link
     output = "<h1>Feed</h1><p><a href='/'>← Back to frontpage</a></p><ul>"
 
+    # Loops through each recipe and creates a clickable recipe with image
     for recipe in recipes:
         output += f"""
         <li>
@@ -73,6 +76,8 @@ def feed():
 def recipe_detail(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
+
+    # Select recipe details, author info, and count of likes/reposts
     c.execute("""
         SELECT 
             Recipe.title,
@@ -91,6 +96,7 @@ def recipe_detail(recipe_id):
     recipe = c.fetchone()
     conn.close()
 
+    # Render recipe details as HTML
     if recipe:
         output = f"""
         <h1>{recipe[0]}</h1>
@@ -114,16 +120,19 @@ def recipe_detail(recipe_id):
         <label for="rating">Rating (1-5):</label><br>
         <input type="number" name="rating" min="1" max="5" required><br><br>
 
-        <input type="submit" value="Send comment">
+        <input type="submit" value="Send kommentar">
         </form>
         """
         return output
     else:
-        return "<h1>Recipe not found.</h1><a href='/feed'>← Tilbage til feed</a>"
+        # Handle case where recipe does not exist
+        return "<h1>Recipe not found.</h1><a href='/feed'>← Back to feed</a>"
 
 @app.route('/recipe/<int:recipe_id>/comments')
 def recipe_comments(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
+
+    # Select username, comment text, timestamp, and rating for the given recipe
     c = conn.cursor()
     c.execute("""
         SELECT 
@@ -139,12 +148,14 @@ def recipe_comments(recipe_id):
     comments = c.fetchall()
     conn.close()
 
+    # Generate HTML to display the list of comments
     output = f"""
     <h1>Comments for this recipe</h1>
     <p><a href="/recipe/{recipe_id}">← Back to recipe</a></p>
     <ul>
     """
     
+    # show comments in a list
     for comment in comments:
         output += f"""
         <li>
@@ -158,17 +169,18 @@ def recipe_comments(recipe_id):
 
 @app.route('/comment/<int:recipe_id>', methods=['POST'])
 def add_comment(recipe_id):
+    # Extract form data submitted by user
     username = request.form['username']
     text = request.form['text']
     rating = int(request.form['rating'])
 
-    # Brug regex til at censurere upassende ord
+    # Use regex to censor inappropriate words in comment text
     censored = re.sub(r'(fuck|shit|lort|ass|garbage|trash)', '***', text, flags=re.IGNORECASE)
 
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
 
-    # Find user_id fra username
+    # Get user_id based on submitted username
     c.execute("SELECT user_id FROM User WHERE username = ?", (username,))
     result = c.fetchone()
     if result:
@@ -177,7 +189,7 @@ def add_comment(recipe_id):
         conn.close()
         return "User does not exist!"
 
-    # Tilføj kommentar
+     # insert new comment
     c.execute("""
         INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
         VALUES (?, ?, ?, datetime('now'), ?)
