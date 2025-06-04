@@ -6,11 +6,13 @@ CREATE TABLE User (
 ); 
 
 CREATE TABLE Recipe (
-  recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
-  description TEXT,
-  ingredients TEXT,
-  media TEXT
+    recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    title TEXT,
+    description TEXT,
+    ingredients TEXT,
+    media TEXT,
+    FOREIGN KEY(user_id) REFERENCES User(user_id)
 );
 
 CREATE TABLE Comment (
@@ -47,9 +49,10 @@ VALUES ('AliceCHEF', 'img/AliceCHEF.jpg', '1234'),
        ('KatrineMad', 'img/KatrineMad.jpg', '3312'),
        ('BOB444', 'img/BOB444.jpg', '5678');
 
-INSERT INTO Recipe (title, description, ingredients, media)
-VALUES ('Pancakes', 'Fluffy and light', 'flour, eggs, milk', 'pancakes.jpg'),
-       ('Spaghetti Bolognese', 'Italian classic', 'pasta, beef, tomato', 'spaghetti.jpg');
+INSERT INTO Recipe (user_id, title, description, ingredients, media)
+VALUES 
+(1, 'Pancakes', 'Fluffy and light', 'flour, eggs, milk', 'pancakes.jpg'),
+(2, 'Spaghetti Bolognese', 'Italian classic', 'pasta, beef, tomato', 'spaghetti.jpg');
 
 INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
 VALUES (1, 1, 'So good!', '2025-06-02 14:00', 5),
