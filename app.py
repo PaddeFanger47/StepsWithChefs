@@ -66,7 +66,6 @@ def feed():
     output += "</ul>"
     return output
 
-
 @app.route('/recipe/<int:recipe_id>')
 def recipe_detail(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
