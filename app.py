@@ -107,8 +107,6 @@ def feed():
     output += "</ul>"
     return output
 
-
-
 @app.route('/recipe/<int:recipe_id>')
 def recipe_detail(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
@@ -140,12 +138,47 @@ def recipe_detail(recipe_id):
         <p><em>Ingredients:</em> {recipe[2]}</p>
         <img src='/static/img/{recipe[3]}' width='200'><br><br>
         <p>❤️ Likes: {recipe[6]} | 🔁 Reposts: {recipe[7]}</p>
+        <p><a href="/recipe/{recipe_id}/comments">💬 See comments</a></p>
         <a href="/feed">← Back to feed</a>
         """
         return output
     else:
         return "<h1>Opskrift ikke fundet.</h1><a href='/feed'>← Tilbage til feed</a>"
 
+@app.route('/recipe/<int:recipe_id>/comments')
+def recipe_comments(recipe_id):
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+    c.execute("""
+        SELECT 
+            User.username,
+            Comment.text,
+            Comment.timestamp,
+            Comment.rating
+        FROM Comment
+        JOIN User ON Comment.user_id = User.user_id
+        WHERE Comment.recipe_id = ?
+        ORDER BY Comment.timestamp DESC
+    """, (recipe_id,))
+    comments = c.fetchall()
+    conn.close()
+
+    output = f"""
+    <h1>Comments for this recipe</h1>
+    <p><a href="/recipe/{recipe_id}">← Back to recipe</a></p>
+    <ul>
+    """
+    
+    for comment in comments:
+        output += f"""
+        <li>
+            <strong>{comment[0]}</strong>: "{comment[1]}"<br>
+            <small>{comment[2]} | ⭐ {comment[3]}</small>
+        </li><br>
+        """
+    output += "</ul>"
+    
+    return output
 
 
 if __name__ == '__main__':
