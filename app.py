@@ -8,7 +8,20 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/users')
+def list_users():
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+    c.execute("SELECT user_id, username, profile_image FROM User")
+    users = c.fetchall()
+    conn.close()
 
+    # Returner som HTML (simpel liste)
+    output = "<h1>Users</h1><ul>"
+    for user in users:
+        output += f"<li>ID: {user[0]} | {user[1]} - <img src='/static/{user[2]}' alt='image' width='50'></li>"
+    output += "</ul>"
+    return output
 
 @app.route('/recipes')
 def list_recipes():
