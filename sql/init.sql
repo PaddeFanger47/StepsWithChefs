@@ -32,10 +32,12 @@ CREATE TABLE Like (
 );
 
 CREATE TABLE Repost (
-  user_id INTEGER,
-  recipe_id INTEGER,
-  FOREIGN KEY(user_id) REFERENCES User(user_id),
-  FOREIGN KEY(recipe_id) REFERENCES Recipe(recipe_id)
+    repost_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    recipe_id INTEGER,
+    timestamp DATETIME,
+    FOREIGN KEY(user_id) REFERENCES User(user_id),
+    FOREIGN KEY(recipe_id) REFERENCES Recipe(recipe_id)
 );
 
 --Her tilføjer vi fiktive brugere:
@@ -54,7 +56,14 @@ VALUES (1, 1, 'So good!', '2025-06-02 14:00', 5),
        (2, 2, 'My kids loved it.', '2025-06-02 14:15', 4);
 
 INSERT INTO Like (user_id, recipe_id)
-VALUES (1, 1), (2, 2);
+VALUES 
+    (1, 1), 
+    (2, 2),
+    (3, 1),
+    (4, 1);  -- Bob liker også opskrift 1
 
-INSERT INTO Repost (user_id, recipe_id)
-VALUES (2, 1);
+-- Reposts (tilføj flere og med tidspunkt!)
+INSERT INTO Repost (user_id, recipe_id, timestamp)
+VALUES 
+    (2, 1, '2024-06-02 15:45'),
+    (4, 2, '2024-06-02 18:00');
