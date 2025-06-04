@@ -93,7 +93,9 @@ def feed():
     recipes = c.fetchall()
     conn.close()
 
-    output = "<h1>Feed</h1><ul>"
+    # Overskrift og link
+    output = "<h1>Feed</h1><p><a href='/'>← Back to frontpage</a></p><ul>"
+
     for recipe in recipes:
         output += f"""
         <li>
@@ -101,8 +103,10 @@ def feed():
             <img src='/static/img/{recipe[2]}' width='200'><br><br>
         </li>
         """
+
     output += "</ul>"
     return output
+
 
 
 @app.route('/recipe/<int:recipe_id>')
@@ -136,7 +140,7 @@ def recipe_detail(recipe_id):
         <p><em>Ingredients:</em> {recipe[2]}</p>
         <img src='/static/img/{recipe[3]}' width='200'><br><br>
         <p>❤️ Likes: {recipe[6]} | 🔁 Reposts: {recipe[7]}</p>
-        <a href="/feed">← Tilbage til feed</a>
+        <a href="/feed">← Back to feed</a>
         """
         return output
     else:
