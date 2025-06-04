@@ -40,8 +40,10 @@ CREATE TABLE Repost (
 
 --Her tilføjer vi fiktive brugere:
 INSERT INTO User (username, profile_image, password)
-VALUES ('alice', 'alice.jpg', '1234'),
-       ('bob', 'bob.jpg', '5678');
+VALUES ('AliceCHEF', 'AliceCHEF.jpg', '1234'),
+       ('DonaldBen', 'DonaldBen.jpg', '4421'),
+       ('KatrineMad', 'KatrineMad.japg', '3312'),
+       ('BOB444', 'bob.jpg', '5678');
 
 INSERT INTO Recipe (title, description, ingredients, media)
 VALUES ('Pancakes', 'Fluffy and light', 'flour, eggs, milk', 'pancakes.jpg'),
