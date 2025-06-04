@@ -1,5 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 import sqlite3
+import re
 
 app = Flask(__name__)
 
@@ -180,6 +181,39 @@ def recipe_comments(recipe_id):
     
     return output
 
+import re
+from flask import request, redirect
+
+@app.route('/comment/<int:recipe_id>', methods=['POST'])
+def add_comment(recipe_id):
+    username = request.form['username']
+    text = request.form['text']
+    rating = int(request.form['rating'])
+
+    # Brug regex til at censurere upassende ord
+    censored = re.sub(r'\b(fuck|shit|lort)\b', '***', text, flags=re.IGNORECASE)
+
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+
+    # Find user_id fra username
+    c.execute("SELECT user_id FROM User WHERE username = ?", (username,))
+    result = c.fetchone()
+    if result:
+        user_id = result[0]
+    else:
+        conn.close()
+        return "Bruger findes ikke!"
+
+    # Tilføj kommentar
+    c.execute("""
+        INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
+        VALUES (?, ?, ?, datetime('now'), ?)
+    """, (user_id, recipe_id, censored, rating))
+
+    conn.commit()
+    conn.close()
+    return redirect(f'/recipe/{recipe_id}')
 
 if __name__ == '__main__':
     app.run(debug=True)

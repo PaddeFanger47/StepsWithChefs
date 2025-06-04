@@ -60,7 +60,8 @@ VALUES
 INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
 VALUES (1, 1, 'So good!', '2025-06-02 14:00', 5),
        (2, 2, 'My kids loved it.', '2025-06-02 14:15', 4),
-       (1, 4, 'Soooooo smooth, incredible!', '2025-06-03 19:13', 5);
+       (1, 4, 'Soooooo smooth, incredible!', '2025-06-03 19:13', 5),
+       (3, 1, 'This recipe was shit', '2025-06-03 12:01', 1);
 
 -- Likes (adds the amount of likes to the recipe)
 INSERT INTO Like (user_id, recipe_id)
@@ -69,7 +70,7 @@ VALUES
     (2, 2),
     (3, 1),
     (4, 1),
-    (2, 4),
+    (1, 4),
     (3, 4);
 
 -- Reposts (adding repost with timestamp to post)
