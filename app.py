@@ -46,5 +46,35 @@ def list_recipes():
     output += "</ul>"
     return output
 
+@app.route('/comments')
+def list_comments():
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+    
+    # Vi laver en join så vi kan se hvem der har skrevet hvad om hvilken opskrift
+    c.execute("""
+        SELECT 
+            Comment.comment_id, 
+            User.username, 
+            Recipe.title, 
+            Comment.text, 
+            Comment.timestamp, 
+            Comment.rating
+        FROM Comment
+        JOIN User ON Comment.user_id = User.user_id
+        JOIN Recipe ON Comment.recipe_id = Recipe.recipe_id
+        ORDER BY Comment.timestamp DESC
+    """)
+    
+    comments = c.fetchall()
+    conn.close()
+
+    # Simpel HTML-output
+    output = "<h1>Comments</h1><ul>"
+    for comment in comments:
+        output += f"<li><strong>{comment[1]}</strong> kommenterede på <em>{comment[2]}</em>:<br>\"{comment[3]}\"<br><small>{comment[4]} | ⭐ {comment[5]}</small></li><br>"
+    output += "</ul>"
+    return output
+
 if __name__ == '__main__':
     app.run(debug=True)
