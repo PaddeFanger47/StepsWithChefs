@@ -3,48 +3,46 @@ import sqlite3
 import re
 
 app = Flask(__name__)
-
+# Create the frontpage / main route to the webapp
 @app.route('/')
 def index():
-     # Renders the main homepage using index.html template
     return render_template('index.html')
-
+# Here we create the users database which contains the database from SQL and have usernames, user_id and pictures
 @app.route('/users')
 def list_users():
-    conn = sqlite3.connect('stepswithchefs.db')  # Connect to the local SQLite database
+    conn = sqlite3.connect('stepswithchefs.db') #Connects to the database
     c = conn.cursor()
-    c.execute("SELECT user_id, username, profile_image FROM User")
+    c.execute("SELECT user_id, username, profile_image FROM User") # Here we use SELECT from SQL to obtain the relevant parameters.
     users = c.fetchall()
     conn.close()
 
-    # Generate simple HTML output with user info
+    # Here we return the HTML file which is available at http://127.0.0.1:5000/users
     output = "<h1>Users</h1><ul>"
     for user in users:
         output += f"<li>ID: {user[0]} | {user[1]} - <img src='/static/{user[2]}' alt='image' width='50'></li>"
     output += "</ul>"
     return output
-
+# Here we create the second route in our database which is recipes. This database also interracts with SQL and creates the 3 recipes.
 @app.route('/recipes')
 def list_recipes():
-    conn = sqlite3.connect('stepswithchefs.db')  # Retrieves all recipes from the database
+    conn = sqlite3.connect('stepswithchefs.db') # Connects with database
     c = conn.cursor()
-    c.execute("SELECT recipe_id, title, description, ingredients, media FROM Recipe")
+    c.execute("SELECT recipe_id, title, description, ingredients, media FROM Recipe") # Here we again use SELECT from SQL to obtain relevant parameters.
     recipes = c.fetchall()
     conn.close()
 
-    # Displays recipes as a simple HTML list
+    # Here we return the HTML file which is available at http://127.0.0.1:5000/recipes
     output = "<h1>Recipes</h1><ul>"
     for r in recipes:
         output += f"<li><strong>{r[0]}</strong>: {r[1]}</li>"
     output += "</ul>"
     return output
-
+# Here we create our main function which is "feed". This function contains our posts with the title and picture of the food made from the recipe.
 @app.route('/feed')
 def feed():
-    conn = sqlite3.connect('stepswithchefs.db')  # Again retrieves all recipes from the database
+    conn = sqlite3.connect('stepswithchefs.db') # Connects with database
     c = conn.cursor()
-    
-    # Retrieves all recipes, ordered by newest first
+    # Uses execute here to receive information from SQL database and SELECT the parameters needed.
     c.execute("""
         SELECT 
             Recipe.recipe_id,
@@ -57,10 +55,9 @@ def feed():
     recipes = c.fetchall()
     conn.close()
 
-    # Headline and link
+    # Here we create the feed title and the feature of "back to frontpage"
     output = "<h1>Feed</h1><p><a href='/'>← Back to frontpage</a></p><ul>"
-
-    # Loops through each recipe and creates a clickable recipe with image
+    # This creates the imaging seen on the page, with recipe number, name and picture.
     for recipe in recipes:
         output += f"""
         <li>
@@ -76,8 +73,6 @@ def feed():
 def recipe_detail(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
-
-    # Select recipe details, author info, and count of likes/reposts
     c.execute("""
         SELECT 
             Recipe.title,
@@ -96,7 +91,6 @@ def recipe_detail(recipe_id):
     recipe = c.fetchone()
     conn.close()
 
-    # Render recipe details as HTML
     if recipe:
         output = f"""
         <h1>{recipe[0]}</h1>
@@ -120,19 +114,16 @@ def recipe_detail(recipe_id):
         <label for="rating">Rating (1-5):</label><br>
         <input type="number" name="rating" min="1" max="5" required><br><br>
 
-        <input type="submit" value="Send kommentar">
+        <input type="submit" value="Send comment">
         </form>
         """
         return output
     else:
-        # Handle case where recipe does not exist
-        return "<h1>Recipe not found.</h1><a href='/feed'>← Back to feed</a>"
+        return "<h1>Recipe not found.</h1><a href='/feed'>← Tilbage til feed</a>"
 
 @app.route('/recipe/<int:recipe_id>/comments')
 def recipe_comments(recipe_id):
     conn = sqlite3.connect('stepswithchefs.db')
-
-    # Select username, comment text, timestamp, and rating for the given recipe
     c = conn.cursor()
     c.execute("""
         SELECT 
@@ -148,14 +139,12 @@ def recipe_comments(recipe_id):
     comments = c.fetchall()
     conn.close()
 
-    # Generate HTML to display the list of comments
     output = f"""
     <h1>Comments for this recipe</h1>
     <p><a href="/recipe/{recipe_id}">← Back to recipe</a></p>
     <ul>
     """
     
-    # show comments in a list
     for comment in comments:
         output += f"""
         <li>
@@ -169,18 +158,17 @@ def recipe_comments(recipe_id):
 
 @app.route('/comment/<int:recipe_id>', methods=['POST'])
 def add_comment(recipe_id):
-    # Extract form data submitted by user
     username = request.form['username']
     text = request.form['text']
     rating = int(request.form['rating'])
 
-    # Use regex to censor inappropriate words in comment text
-    censored = re.sub(r'(fuck|shit|lort|ass|garbage|trash)', '***', text, flags=re.IGNORECASE)
+    # Brug regex til at censurere upassende ord
+    censored = re.sub(r'(fuck|shit|idiot|ass|garbage|trash|dogshit)', '***', text, flags=re.IGNORECASE)
 
     conn = sqlite3.connect('stepswithchefs.db')
     c = conn.cursor()
 
-    # Get user_id based on submitted username
+    # Find user_id fra username
     c.execute("SELECT user_id FROM User WHERE username = ?", (username,))
     result = c.fetchone()
     if result:
@@ -189,7 +177,7 @@ def add_comment(recipe_id):
         conn.close()
         return "User does not exist!"
 
-     # insert new comment
+    # Tilføj kommentar
     c.execute("""
         INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
         VALUES (?, ?, ?, datetime('now'), ?)
