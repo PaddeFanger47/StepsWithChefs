@@ -27,7 +27,7 @@ def list_users():
     # Returner som HTML (simpel liste)
     output = "<h1>Users</h1><ul>"
     for user in users:
-        output += f"<li>ID: {user[0]} | {user[1]} - <img src='{user[2]}' alt='image' width='50'></li>"
+        output += f"<li>ID: {user[0]} | {user[1]} - <img src='/static/{user[2]}' alt='image' width='50'></li>"
     output += "</ul>"
     return output
 
