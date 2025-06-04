@@ -114,7 +114,7 @@ def recipe_detail(recipe_id):
         <label for="rating">Rating (1-5):</label><br>
         <input type="number" name="rating" min="1" max="5" required><br><br>
 
-        <input type="submit" value="Send kommentar">
+        <input type="submit" value="Send comment">
         </form>
         """
         return output
