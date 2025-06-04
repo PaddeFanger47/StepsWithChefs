@@ -1,20 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 import sqlite3
+import re
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/test')
-def test():
-    conn = sqlite3.connect('stepswithchefs.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = cursor.fetchall()
-    conn.close()
-    return f"Tabeller: {tables}"
 
 @app.route('/users')
 def list_users():
@@ -46,36 +38,6 @@ def list_recipes():
     output += "</ul>"
     return output
 
-@app.route('/comments')
-def list_comments():
-    conn = sqlite3.connect('stepswithchefs.db')
-    c = conn.cursor()
-    
-    # Vi laver en join så vi kan se hvem der har skrevet hvad om hvilken opskrift
-    c.execute("""
-        SELECT 
-            Comment.comment_id, 
-            User.username, 
-            Recipe.title, 
-            Comment.text, 
-            Comment.timestamp, 
-            Comment.rating
-        FROM Comment
-        JOIN User ON Comment.user_id = User.user_id
-        JOIN Recipe ON Comment.recipe_id = Recipe.recipe_id
-        ORDER BY Comment.timestamp DESC
-    """)
-    
-    comments = c.fetchall()
-    conn.close()
-
-    # Simpel HTML-output
-    output = "<h1>Comments</h1><ul>"
-    for comment in comments:
-        output += f"<li><strong>{comment[1]}</strong> kommenterede på <em>{comment[2]}</em>:<br>\"{comment[3]}\"<br><small>{comment[4]} | ⭐ {comment[5]}</small></li><br>"
-    output += "</ul>"
-    return output
-
 @app.route('/feed')
 def feed():
     conn = sqlite3.connect('stepswithchefs.db')
@@ -93,9 +55,7 @@ def feed():
     recipes = c.fetchall()
     conn.close()
 
-    # Overskrift og link
-    output = "<h1>Feed</h1><p><a href='/'>← Back to frontpage</a></p><ul>"
-
+    output = "<h1>Feed</h1><ul>"
     for recipe in recipes:
         output += f"""
         <li>
@@ -103,10 +63,8 @@ def feed():
             <img src='/static/img/{recipe[2]}' width='200'><br><br>
         </li>
         """
-
     output += "</ul>"
     return output
-
 
 
 @app.route('/recipe/<int:recipe_id>')
@@ -140,13 +98,42 @@ def recipe_detail(recipe_id):
         <p><em>Ingredients:</em> {recipe[2]}</p>
         <img src='/static/img/{recipe[3]}' width='200'><br><br>
         <p>❤️ Likes: {recipe[6]} | 🔁 Reposts: {recipe[7]}</p>
-        <a href="/feed">← Back to feed</a>
+        <a href="/feed">← Tilbage til feed</a>
         """
         return output
     else:
         return "<h1>Opskrift ikke fundet.</h1><a href='/feed'>← Tilbage til feed</a>"
 
+@app.route('/comment/<int:recipe_id>', methods=['POST'])
+def add_comment(recipe_id):
+    username = request.form['username']
+    text = request.form['text']
+    rating = int(request.form['rating'])
 
+    # Brug regex til at censurere upassende ord
+    censored = re.sub(r'\b(fuck|shit|ass|dogshit|garbage)\b', '***', text, flags=re.IGNORECASE)
+
+    conn = sqlite3.connect('stepswithchefs.db')
+    c = conn.cursor()
+
+    # Find user_id fra username
+    c.execute("SELECT user_id FROM User WHERE username = ?", (username,))
+    result = c.fetchone()
+    if result:
+        user_id = result[0]
+    else:
+        conn.close()
+        return "User does not exist!"
+
+    # Tilføj kommentar
+    c.execute("""
+        INSERT INTO Comment (user_id, recipe_id, text, timestamp, rating)
+        VALUES (?, ?, ?, datetime('now'), ?)
+    """, (user_id, recipe_id, censored, rating))
+
+    conn.commit()
+    conn.close()
+    return redirect(f'/recipe/{recipe_id}')
 
 if __name__ == '__main__':
     app.run(debug=True)
