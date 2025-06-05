@@ -6,7 +6,17 @@ Project about cooking recipes:
 This guide shows how to run the **StepsWithChefs** web app locally using Python and Flask.
 
 ---
+There is two ways you can make the program work.
 
+#First way (if u have vs-code):
+
+You can open VS-code and press the fourth line with "Clone git repository" and paste in: https://github.com/PaddeFanger47/StepsWithChefs.git.
+
+Next step is opening the terminal and typing: "python app.py".
+
+A link will now appear in the terminal: http://127.0.0.1:5000/
+
+#Second way (more general) - using "CMD" instead of windows powershell, because of restrictions.
 
 1. Clone the GitHub repository
 
