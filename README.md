@@ -28,7 +28,7 @@ Help to run our app:
 - New comments and likes are stored in the database, but likes can only be hardcoded into the SQL file "atm".
 
 ## How to interract with our webapp:
-- When u enter the folder "StepsWithChefs" u can create the website with the following command: "python app.py".
+- When u enter the main folder "StepsWithChefs" in ur terminal - u can create the website with the following command: "python app.py".
 - This command will run and create a website with the data: http://127.0.0.1:5000 
 - When u open this website u are introduced to our front page, which has the name of the website and a redirector to the feed page.
 - If u press the "feed page" u enter the feeds. Here u have the overall posts with the title and picture of the food. In this instance we have made 3 examples, because the database was fictive.
