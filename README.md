@@ -8,7 +8,7 @@ This guide shows how to run the **StepsWithChefs** web app locally using Python 
 ---
 There is two ways you can make the program work.
 
-#First way (if u have vs-code):
+#First way (if you have vs-code):
 
 You can open VS-code and press the fourth line with "Clone git repository" and paste in: https://github.com/PaddeFanger47/StepsWithChefs.git.
 
@@ -66,7 +66,7 @@ You are now running the StepsWithChefs project!
 ## Regex:
 - We added regex to our program inside the webapp. You can interract with the site through a "comment section" in which you have these variables:
 - Username - Comment - Rating.
-- The way we included regex was whenever you wrote a word the was considered "rude or uncalled for (swear words)". The regex format would automatically remove the word and replace with "***". You could try just as we have done, but of course not all swear words are included, but the ones u would use like (shit, garbage, dogshit) and so on. (We made an example on the post with "Spaghetti Bolognesse").
+- The way we included regex was whenever you wrote a word the was considered "rude or uncalled for (swear words)". The regex format would automatically remove the word and replace with "***". You could try just as we have done, but of course not all swear words are included, but the ones you would use like (shit, garbage, dogshit) and so on. (We made an example on the post with "Spaghetti Bolognesse").
 
 ## SQL:
 - The database is created through SQL code. We have now created the database and it contains the added comments, that we tested the site with (REGEX). The point i tried to make above is, if u delete the database (because u made changes in the SQL file), then u would lose all of the comments made in the database and only obtain the original, that was created through SQL. Therefore it is probably best to keep it and not use the command:
