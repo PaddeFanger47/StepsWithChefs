@@ -21,13 +21,17 @@ python -m venv venv
 venv\Scripts\activate
 
 3. Install the required packages
+
 pip install -r requirements.txt
 
 4. Set up the SQLite database
+
 sqlite3 stepswithchefs.db < sql/init.sql
+
 If the sqlite3 command doesn't work, you can run sqlite3.exe manually and copy-paste the content of init.sql.
 
 5. Run the application
+
 python app.py
 
 Alternative using Flask CLI:
