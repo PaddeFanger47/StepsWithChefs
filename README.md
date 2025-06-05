@@ -1,7 +1,43 @@
 # StepsWithChefs
 Project about cooking recipes:
 
-Help to run our app:
+## Help to run our app:
+
+This guide shows how to run the **StepsWithChefs** web app locally using Python and Flask.
+
+---
+
+1. Clone the GitHub repository
+
+git clone https://github.com/YOUR_USERNAME/StepsWithChefs.git
+cd StepsWithChefs
+
+2. Create and activate a virtual environment
+
+python -m venv venv
+venv\Scripts\activate
+
+3. Install the required packages
+pip install -r requirements.txt
+
+4. Set up the SQLite database
+sqlite3 stepswithchefs.db < sql/init.sql
+If the sqlite3 command doesn't work, you can run sqlite3.exe manually and copy-paste the content of init.sql.
+
+5. Run the application
+python app.py
+
+Alternative using Flask CLI:
+set FLASK_APP=app.py
+set FLASK_ENV=development
+flask run
+
+6. Open your browser
+Go to:
+http://127.0.0.1:5000/
+
+You are now running the StepsWithChefs project!
+
 
 ## U will need the following installations to run:
 - Instalment of Flask, which is used as our interpreter to create our "website/app". 
