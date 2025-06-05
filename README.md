@@ -35,8 +35,11 @@ If the sqlite3 command doesn't work, you can run sqlite3.exe manually and copy-p
 python app.py
 
 Alternative using Flask CLI:
+
 set FLASK_APP=app.py
+
 set FLASK_ENV=development
+
 flask run
 
 6. Open your browser
