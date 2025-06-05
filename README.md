@@ -69,7 +69,7 @@ You are now running the StepsWithChefs project!
 - The way we included regex was whenever you wrote a word the was considered "rude or uncalled for (swear words)". The regex format would automatically remove the word and replace with "***". You could try just as we have done, but of course not all swear words are included, but the ones you would use like (shit, garbage, dogshit) and so on. (We made an example on the post with "Spaghetti Bolognesse").
 
 ## SQL:
-- The database is created through SQL code. We have now created the database and it contains the added comments, that we tested the site with (REGEX). The point i tried to make above is, if u delete the database (because u made changes in the SQL file), then u would lose all of the comments made in the database and only obtain the original, that was created through SQL. Therefore it is probably best to keep it and not use the command:
+- The database is created through SQL code. We have now created the database and it contains the added comments, that we tested the site with (REGEX). The point i tried to make above is, if you delete the database (because you made changes in the SQL file), then you would lose all of the comments made in the database and only obtain the original, that was created through SQL. Therefore it is probably best to keep it and not use the command:
 - sqlite3 stepswithchefs.db < sql\init.sql
 - This command is the one we use to establish the first database and the one you would use to create a new database.
 - New comments and likes are stored in the database, but likes can only be hardcoded into the SQL file (like we have it at the moment, but could be further developed).
