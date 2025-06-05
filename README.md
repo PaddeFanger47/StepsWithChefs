@@ -7,15 +7,17 @@ This guide shows how to run the **StepsWithChefs** web app locally using Python 
 
 ---
 
+
 1. Clone the GitHub repository
 
-git clone https://github.com/YOUR_USERNAME/StepsWithChefs.git
+git clone https://github.com/PaddeFanger47/StepsWithChefs.git
 
 cd StepsWithChefs
 
 2. Create and activate a virtual environment
 
 python -m venv venv
+
 venv\Scripts\activate
 
 3. Install the required packages
